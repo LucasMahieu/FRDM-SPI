@@ -16,9 +16,35 @@ void SPI_init(void) {
 	
 	// Config registers, turn on SPI0 as master
 	// Enable chip select
-	SPI0->C1 = 0x52;
-	SPI0->C2 = 0x10;
-	SPI0->BR = 0x00;
+	//SPI0->C1 = 0x52;
+	// MSTR  = Master/slave mode select
+	// SSOE = Slave select output enable : 
+		// 0 When MODFEN is 0: 	In master mode, SS pin function is general-purpose I/O (not SPI). 
+		//			In slave mode, SS pin function is slave select input.
+		//   When MODFEN is 1: 	In master mode, SS pin function is SS input for mode fault.
+		//			In slave mode, SS pin function is slave select input.
+		// 1 When MODFEN is 0: 	In master mode, SS pin function is general-purpose I/O (not SPI). 
+		//			In slave mode, SS pin function is slave select input.
+		//   When MODFEN is 1: 	In master mode, SS pin function is automatic SS output. 
+		//			In slave mode: SS pin function is slave select input.
+	SPI0_C1 = SPI_C1_MSTR_MASK | SPI_C1_SSOE_MASK;   //Set SPI0 to Master & SS pin to auto SS
+	//SPI0->C2 = 0x10;
+	// When the SPI is configured for slave mode, this bit has no meaning or effect. (The SS pin is the slave select input.) 
+	// In master mode, this bit determines how the SS pin is used. 
+	// For details, refer to the description of the SSOE bit in the C1 register.
+	SPI0_C2 = SPI_C2_MODFEN_MASK;   //Master SS pin acts as slave select output  
+	//SPI0_BR[6->4]: 
+	//This 3-bit field selects one of eight divisors for the SPI baud rate prescaler. 
+	//The input to this prescaler is the bus rate clock (BUSCLK). 
+	//The output of this prescaler drives the input of the SPI baud rate divider. 
+	//Refer to the description of “SPI Baud Rate Generation” for details.
+	//SPI0_BR[3->0]:
+	// This 4-bit field selects one of nine divisors for the SPI baud rate divider. 
+	// The input to this divider comes from the SPI baud rate prescaler. 
+	// Refer to the description of “SPI Baud Rate Generation” for details.
+	// SPI0->BR = 0x00;
+	SPI0_BR = (SPI_BR_SPPR(0x02) | SPI_BR_SPR(0x02));     
+	//Set baud rate prescale divisor to 3(0x2) & set baud rate divisor to 8(0x2) 
 }
 
 // status[7] = SPI read buffer full flag
