@@ -21,6 +21,10 @@ void SPI_init(void) {
 	SPI0->BR = 0x00;
 }
 
+// status[7] = SPI read buffer full flag
+// status[6] = SPI match flag
+// status[5] = SPI transmit buffer empty flag
+// status[4] = Master mode fault flag
 uint8_t SPI_status(void) {
 	return SPI0->S;
 }
@@ -32,6 +36,7 @@ void SPI_write(uint8_t* p, int size, uint8_t addr) {
 	//SPI0->C2 |= 0x04;
 	for (i = 0; i < size; ++i) {
 		// poll until empty
+		// if buffer not empty, status[5] = 0 (2^5 = 32 = 0x20)
 		while ((SPI_status() & 0x20) != 0x20);
 		SPI0->D = p[i];
 	}
