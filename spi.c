@@ -63,7 +63,7 @@ void SPI_write(uint8_t* p, int size, uint8_t addr) {
 	for (i = 0; i < size; ++i) {
 		// poll until empty
 		// if buffer not empty, status[5] = 0 (2^5 = 32 = 0x20)
-		while ((SPI_status() & 0x20) != 0x20);
+		while (!(SPI_status() & SPI_S_SPTEF_MASK));
 		SPI0->D = p[i];
 	}
 }
